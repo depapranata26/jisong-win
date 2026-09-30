@@ -37,6 +37,7 @@
     d.innerHTML = tileHTML(t);
     var el = d.firstChild;
     el.dataset.k = t[0] + '-' + t[1];
+    if (t[0] === t[1]) el.classList.add('balak'); // tandai kartu balak dgn titik emas
     el.addEventListener('click', function () {
       var k = el.dataset.k;
       var idx = sel.indexOf(k);
@@ -92,13 +93,15 @@
           ((E.tileIndex(t1) * 31 + E.tileIndex(t2) * 17 + players * 101) >>> 0));
     var eq = E.equity(r), rec = E.recommend(eq);
     lastVal = r.value;
+    var hasBalak = E.balakRank(t1, t2) >= 0;
 
     $('r-tiles').innerHTML = tileHTML(t1, true) + tileHTML(t2, true);
     var vn = $('r-val');
     vn.textContent = r.value;
     vn.style.color = r.value >= 8 ? '#4ade80' : (r.value >= 6 ? '#fbbf24' : '#f87171');
     var tot = E.pips(t1) + E.pips(t2);
-    $('r-lbl').innerHTML = tot + ' bulatan → <b>' + (r.value === 9 ? 'Qiu!' : 'nilai ' + r.value) + '</b>';
+    $('r-lbl').innerHTML = tot + ' bulatan → <b>' + (r.value === 9 ? 'Qiu!' : 'nilai ' + r.value) + '</b>' +
+      (hasBalak ? '<br>🀄 <b>BALAK</b> — seri nilai = kamu menang' : '');
 
     function bar(t, p, c) {
       return '<div class="barrow"><div class="t">' + t + '</div><div class="bar"><span style="width:' +
@@ -111,7 +114,7 @@
     var rc = $('r-rec');
     rc.className = 'rec ' + (rec === 'NAIKKAN' ? 'up' : rec === 'IKUT' ? 'mid' : 'down');
     rc.querySelector('.r').textContent = rec === 'NAIKKAN' ? '🟢 NAIKKAN' : rec === 'IKUT' ? '🟡 IKUT' : '🔴 LIPAT';
-    rc.querySelector('.why').textContent = E.reasoning(r.value, eq, players);
+    rc.querySelector('.why').textContent = E.reasoning(r.value, eq, players, hasBalak);
     res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -142,7 +145,7 @@
     }).join('');
   }
 
-  // ---- tab Peluang (dari tabel baked) ----
+  // ---- tab Peluang (dari tabel baked: varian tanpa/ada balak) ----
   (function () {
     var T = window.JISONG_TABLES;
     // distribusi
@@ -150,13 +153,22 @@
       return '<div class="col"><div class="b" style="height:' + Math.round(p * 100 * 8) + '%"></div>' +
         '<div class="x">' + v + '</div></div>';
     }).join('');
-    // tabel win%
+    // tabel win% — toggle balak
+    var withBalak = false;
     function cls(p) { return p >= 0.6 ? 'hi' : p >= 0.3 ? 'md2' : 'lo'; }
-    $('odds-tbody').innerHTML = T.table.map(function (row) {
-      function c(p) { return '<span class="' + cls(p) + '">' + Math.round(p * 100) + '%</span>'; }
-      return '<tr><td>' + (row.v === 9 ? '9 🎯' : row.v) + '</td><td>' + c(row.huWin) +
-        '</td><td>' + c(row.mc[3].win) + '</td><td>' + c(row.mc[4].win) + '</td><td>' + c(row.mc[6].win) + '</td></tr>';
-    }).join('');
+    function renderOdds() {
+      var arr = withBalak ? T.balak : T.noBalak;
+      $('odds-tbody').innerHTML = arr.map(function (row) {
+        function c(p) { return '<span class="' + cls(p) + '">' + Math.round(p * 100) + '%</span>'; }
+        return '<tr><td>' + (row.v === 9 ? '9 🎯' : row.v) + '</td><td>' + c(row.huWin) +
+          '</td><td>' + c(row.mc[3].win) + '</td><td>' + c(row.mc[4].win) + '</td><td>' + c(row.mc[6].win) + '</td></tr>';
+      }).join('');
+      $('odds-nobalak').className = 'btn' + (withBalak ? '' : ' gold');
+      $('odds-balak').className = 'btn' + (withBalak ? ' gold' : '');
+    }
+    $('odds-nobalak').addEventListener('click', function () { withBalak = false; renderOdds(); });
+    $('odds-balak').addEventListener('click', function () { withBalak = true; renderOdds(); });
+    renderOdds();
   })();
 
   renderHist();

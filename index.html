@@ -18,7 +18,8 @@ main{padding:12px 12px 20px}
 .card h3{font-size:13px;color:#c9a227;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
 /* domino tiles */
 .tgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.tile{background:#f5f0e6;border-radius:7px;padding:4px 2px;cursor:pointer;border:2px solid transparent;user-select:none}
+.tile{background:#f5f0e6;border-radius:7px;padding:4px 2px;cursor:pointer;border:2px solid transparent;user-select:none;position:relative}
+.tile.balak::after{content:'';position:absolute;top:3px;right:4px;width:7px;height:7px;border-radius:50%;background:#c9a227;box-shadow:0 0 4px #c9a227}
 .tile .half{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;aspect-ratio:1/.62}
 .tile .half i{border-radius:50%;aspect-ratio:1}
 .tile .half i.p{background:#1a2230}
@@ -117,13 +118,18 @@ nav button.on{color:#c9a227}
     <ul class="note"><li>Distribusi <b>hampir rata</b>: tiap nilai 0–9 peluangnya ±10%.</li></ul>
   </div>
   <div class="card"><h3>🏆 Win% per nilai kartu</h3>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn gold" id="odds-nobalak">⬜ Tanpa Balak</button>
+      <button class="btn" id="odds-balak">🀄 Ada Balak</button>
+    </div>
     <table class="ptable"><thead><tr><th>Nilai</th><th>1 lawan</th><th>2 lawan</th><th>3 lawan</th><th>5 lawan</th></tr></thead>
     <tbody id="odds-tbody"></tbody></table>
     <ul class="note">
-      <li><b>Qiu (9)</b>: menang ±86% vs 3 lawan — kartu monster.</li>
-      <li><b>Nilai 8</b>: premium, menang ±61% vs 3 lawan.</li>
-      <li><b>Nilai 7</b>: batas ikut — ±42% vs 3 lawan.</li>
-      <li><b>Nilai ≤ 6</b>: makin banyak lawan makin wajib lipat.</li>
+      <li><b>Qiu (9)</b>: tanpa balak menang ±73% vs 3 lawan — <b>dengan balak ±94%</b>. Kartu monster.</li>
+      <li><b>Nilai 8</b>: 51% → <b>68%</b> kalau pegang balak.</li>
+      <li><b>Nilai 7</b>: 35% → <b>48%</b> kalau pegang balak.</li>
+      <li><b>Kenapa jauh?</b> Seri nilai langsung dimenangkan pemegang balak — bukan split pot.</li>
+      <li>Kartu balak ditandai <b>titik emas</b> di picker.</li>
     </ul>
   </div>
 </section>
@@ -147,7 +153,7 @@ nav button.on{color:#c9a227}
       <li><b>Nilai = total bulatan 2 kartu, ambil angka belakang.</b> Contoh: 6|3 + 5|4 = 18 → <b>8</b>.</li>
       <li>Nilai tertinggi = <b>9 (Qiu!)</b>, terendah = 0 (kosong).</li>
       <li>Ronde taruhan: <b>ikut / lipat / naikkan / mati</b>.</li>
-      <li><b>Nilai tertinggi menang.</b> Kalau seri, pot dibagi.</li>
+      <li><b>Nilai tertinggi menang.</b> Kalau nilai <b>seri → yang pegang kartu balak menang</b>; kalau dua-duanya pegang balak, <b>balak tertinggi</b> menang; kalau sama-sama tanpa balak, pot dibagi.</li>
     </ol></div>
   </div>
   <div class="card"><h3>🧠 Cara engine bekerja</h3>
@@ -155,6 +161,7 @@ nav button.on{color:#c9a227}
       <li>Lawan 1 orang: hitung <b>exact</b> dari 325 kombinasi sisa deck.</li>
       <li>Lawan 2+: <b>Monte Carlo 25.000 simulasi</b> acak sisa deck.</li>
       <li>Equity = peluang menang + ½ peluang seri.</li>
+      <li>Seri nilai <b>dipecah dengan balak</b> (bukan split pot): pegang balak = menang seri.</li>
       <li><b>NAIKKAN</b> kalau equity ≥ 60%, <b>IKUT</b> kalau ≥ 30%, selebihnya <b>LIPAT</b>.</li>
     </ol></div>
   </div>

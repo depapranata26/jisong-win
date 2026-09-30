@@ -1,5 +1,5 @@
 /* Jisong Win Logic — service worker (offline cache) */
-var CACHE = 'jisong-win-v1';
+var CACHE = 'jisong-win-v2';
 var ASSETS = [
   './', './index.html', './app.js', './engine.js', './tables-data.js',
   './manifest.json', './icons/icon-192.png', './icons/icon-512.png'
